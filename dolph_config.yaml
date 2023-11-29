@@ -1,0 +1,10 @@
+port: 3300
+database:
+    mongo:
+        url: mongodb://localhost:27017/test-dolph
+        options:
+            autoIndex: true
+middlewares:
+    cors:
+        activate: true
+        origin: "*"
