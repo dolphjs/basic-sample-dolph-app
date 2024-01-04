@@ -22,7 +22,10 @@ export class UserController extends DolphControllerHandler<Dolph> {
 
     @TryCatchAsyncDec
     public async defaultMethod(req: DRequest, res: DResponse) {
-        SuccessResponse({ res, body: { message: "user is working!" } });
+        SuccessResponse({
+            res,
+            body: { message: "user endpoint has been reached" },
+        });
     }
 
     @TryCatchAsyncDec
@@ -58,7 +61,7 @@ export class UserController extends DolphControllerHandler<Dolph> {
         const users = await userService.find({});
 
         if (!users.length)
-            throw new NotFoundException("there are no registeres users");
+            throw new NotFoundException("there are no registered users");
 
         SuccessResponse({ res, body: { data: serializeUsers(users) } });
     }
