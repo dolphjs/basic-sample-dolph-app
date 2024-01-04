@@ -11,7 +11,8 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from "@dolphjs/dolph/common";
-import { hashWithBcrypt } from "@dolphjs/dolph/utilities";
+import { generateJWTwithHMAC, hashWithBcrypt } from "@dolphjs/dolph/utilities";
+import moment from "moment";
 
 const userService = new UserService();
 
@@ -54,6 +55,33 @@ export class UserController extends DolphControllerHandler<Dolph> {
             res,
             status: 201,
             body: { data: serializeUser(newUser) },
+        });
+    }
+
+    @TryCatchAsyncDec
+    public async login(req: DRequest, res: DResponse) {
+        const { email, password } = req.body;
+
+        const user = await userService.findByEmail(email);
+
+        if (!user) throw new BadRequestException("incorrect login details");
+
+        if (!user.doesPasswordMatch(password))
+            throw new BadRequestException("password does not match");
+
+        const token = generateJWTwithHMAC({
+            payload: {
+                exp: moment().add(1000, "seconds").unix(),
+                iat: moment().unix(),
+                sub: user.id,
+            },
+            secret: "random_secret",
+        });
+
+        SuccessResponse({
+            res,
+            status: 200,
+            body: { data: { token, user } },
         });
     }
 
